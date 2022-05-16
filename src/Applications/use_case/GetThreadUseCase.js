@@ -3,8 +3,27 @@ class GetThreadUseCase {
     this._threadRepository = threadRepository;
   }
 
-  async execute(threadId) {
-    return await this._threadRepository.getThread(threadId);
+  async execute(thread_id) {
+    const result = await this._threadRepository.getThread(thread_id);
+
+    var comments = [];
+    result.rows.map((comment)=>{
+      comments.push({
+        id:comment.comment_id,
+        username: comment.comment_username,
+        date: new Date(comment.comment_date).toISOString(),
+        content: (comment.is_delete === "0")?comment.content:"**komentar telah dihapus**"
+      });
+    });
+    const thread = {
+      id: result.rows[0].thread_id,
+      title:result.rows[0].title,
+      body:result.rows[0].body,
+      date: new Date(result.rows[0].thread_date).toISOString(),
+      username: result.rows[0].thread_username,
+      comments
+    }
+    return thread;
   }
 }
 

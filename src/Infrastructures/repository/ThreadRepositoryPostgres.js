@@ -12,21 +12,20 @@ class ThreadRepositoryPostgres extends ThreadRepository {
   async addThread(newThread) {
     const { title, body, owner } = newThread;
     const id = `thread-${this._idGenerator()}`;
-    const date = new Date().toISOString();
 
     const query = {
-      text: 'INSERT INTO threads VALUES($1, $2, $3, $4, $5) RETURNING id, title, owner',
-      values: [id, title, body, date, owner],
+      text: 'INSERT INTO threads VALUES($1, $2, $3, $4) RETURNING id, title, owner',
+      values: [id, title, body, owner],
     };
 
     const result = await this._pool.query(query);
 
     return new AddedThread({ ...result.rows[0] });
   }
-  async getThread(threadId) {
+  async getThread(thread_id) {
     const query = {
-      text: 'SELECT aa."title",aa."body",aa."date" "threadDate",bb."username" "threadUsername",cc.* FROM threads aa LEFT JOIN users bb ON aa.owner = bb.id LEFT JOIN (SELECT a."id" "commentId",a."threadId",b."username" "commentUsername",a."date" "commentDate",a."content",a."is_delete" FROM thread_comments a LEFT JOIN users b on a."owner" = b."id" WHERE a."threadId" = $1) cc ON aa."id" = cc."threadId" WHERE aa."id" = $1',
-      values: [threadId],
+      text: 'SELECT aa.title,aa.body,aa.date AS thread_date,bb.username AS thread_username,cc.* FROM threads aa LEFT JOIN users bb ON aa.owner = bb.id LEFT JOIN (SELECT a.id AS comment_id,a.thread_id,b.username AS comment_username,a.date AS comment_date,a.content,a.is_delete FROM thread_comments a LEFT JOIN users b on a.owner = b.id WHERE a.thread_id = $1) cc ON aa.id = cc.thread_id WHERE aa.id = $1',
+      values: [thread_id],
     };
 
     const result = await this._pool.query(query);
@@ -35,25 +34,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       throw new NotFoundError('thread tidak ditemukan');
     }
 
-    var comments = [];
-    result.rows.map((comment)=>{
-      comments.push({
-        id:comment.commentId,
-        username: comment.commentUsername,
-        date: comment.commentDate,
-        content: (comment.is_delete === "0")?comment.content:"**komentar telah dihapus**"
-      });
-    });
-    const thread = {
-      id: result.rows[0].threadId,
-      title:result.rows[0].title,
-      body:result.rows[0].body,
-      date: result.rows[0].threadDate,
-      username: result.rows[0].threadUsername,
-      comments
-    }
-
-    return thread;
+    return result;
   }
 
 }

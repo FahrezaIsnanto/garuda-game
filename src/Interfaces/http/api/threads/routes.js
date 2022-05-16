@@ -9,7 +9,7 @@ const routes = (handler) => ([
     },
     {
       method: 'POST',
-      path: '/threads/{threadId}/comments',
+      path: '/threads/{thread_id}/comments',
       handler: handler.postThreadCommentByIdHandler,
       options: {
         auth: 'notesapp_jwt',
@@ -17,7 +17,7 @@ const routes = (handler) => ([
     },
     {
       method: 'DELETE',
-      path: '/threads/{threadId}/comments/{commentId}',
+      path: '/threads/{thread_id}/comments/{comment_id}',
       handler: handler.deleteThreadCommentByThreadAndCommentIdHandler,
       options: {
         auth: 'notesapp_jwt',
@@ -25,7 +25,7 @@ const routes = (handler) => ([
     },
     {
       method: 'GET',
-      path: '/threads/{threadId}',
+      path: '/threads/{thread_id}',
       handler: handler.getThreadByIdHandler,
     },
   ]);

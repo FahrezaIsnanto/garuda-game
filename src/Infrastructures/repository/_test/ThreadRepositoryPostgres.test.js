@@ -63,57 +63,43 @@ describe('ThreadRepositoryPostgres', () => {
   describe('getThread function',()=>{
     it('should not throw NotFoundError when thread founded',async()=>{
        // Arrange
-       const threadId = await ThreadsTableTestHelper.addThread({owner:"user-123"});
+       const {id:thread_id} = await ThreadsTableTestHelper.addThread({owner:"user-123"});
 
        const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
  
        // Action & Assert
-       await expect(threadRepositoryPostgres.getThread(threadId)).resolves.not.toThrowError(NotFoundError);
+       await expect(threadRepositoryPostgres.getThread(thread_id)).resolves.not.toThrowError(NotFoundError);
     });
     it('should throw NotFoundError when thread not found',async()=>{
       // Arrange
-      const threadId = 'fail-123';
+      const thread_id = 'fail-123';
 
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(threadRepositoryPostgres.getThread(threadId)).rejects.toThrowError(NotFoundError);
+      await expect(threadRepositoryPostgres.getThread(thread_id)).rejects.toThrowError(NotFoundError);
    });
     it('should return thread with comment correctly',async()=>{
       // Arrange
-      const date = new Date().toISOString();
       const userId1 = await UsersTableTestHelper.addUser({id:"user-1",username:"username-1",fullname:"fullname-1"});
       const userId2 =  await UsersTableTestHelper.addUser({id:"user-2",username:"username-2",fullname:"fullname-2"});
-      const threadId = await ThreadsTableTestHelper.addThread({id:'thread-1' ,body:"body-thread",title:"title-thread", owner:userId1,date});
-      const commentId1 = await ThreadCommentsTableTestHelper.addThreadComment({id:"comment-1", threadId,content:'content-1',owner:userId1,date});
-      const commentId2 = await ThreadCommentsTableTestHelper.addThreadComment({id:"comment-2", threadId,content:'content-2',owner:userId2,date});
-      await ThreadCommentsTableTestHelper.deleteThreadCommentsByCommentAndThreadId(commentId2,threadId);
+      const {id:thread_id} = await ThreadsTableTestHelper.addThread({id:'thread-1' ,body:"body-thread",title:"title-thread", owner:userId1});
+      const {id:comment_id1} = await ThreadCommentsTableTestHelper.addThreadComment({id:"comment-1", thread_id,content:'content-1',owner:userId1});
+      const {id:comment_id2} = await ThreadCommentsTableTestHelper.addThreadComment({id:"comment-2", thread_id,content:'content-2',owner:userId2});
+      await ThreadCommentsTableTestHelper.deleteThreadCommentsByCommentAndThreadId(comment_id2,thread_id);
       
-      const expectedThread={
-        id:threadId,
-        title:"title-thread",
-        body:"body-thread",
-        date,
-        username:"username-1",
-        comments: [{
-          id: commentId1,
-          username: "username-1",
-          date,
-          content: "content-1",
-        },
-        {
-          id: commentId2,
-          username: "username-2",
-          date,
-          content: "**komentar telah dihapus**",
-        },
-      ]
-      }
-
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
 
-      // Action
-      await expect(threadRepositoryPostgres.getThread(threadId)).resolves.toEqual(expectedThread);
+      const threadDate = await ThreadsTableTestHelper.findThreadDateById(thread_id);
+      const commentDate1 = await ThreadCommentsTableTestHelper.findThreadCommentDateById(comment_id1);
+      const commentDate2 = await ThreadCommentsTableTestHelper.findThreadCommentDateById(comment_id2); 
+
+      // Action 
+      const result = await threadRepositoryPostgres.getThread(thread_id);
+
+      expect(result.rows[0].thread_id).toEqual(thread_id);
+      expect(result.rows[0].comment_id).toEqual(comment_id1);
+      expect(result.rows[1].comment_id).toEqual(comment_id2);
 
     });
   });

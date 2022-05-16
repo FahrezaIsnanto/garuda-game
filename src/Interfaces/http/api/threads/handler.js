@@ -30,8 +30,8 @@ class ThreadsHandler {
   }
 
   async postThreadCommentByIdHandler(request, h) {
-    const { threadId } = request.params;
-    request.payload.threadId = threadId;
+    const { thread_id } = request.params;
+    request.payload.thread_id = thread_id;
     request.payload.owner = request.auth.credentials.id;
 
     const addThreadCommentUseCase = this._container.getInstance(AddThreadCommentUseCase.name);
@@ -49,11 +49,11 @@ class ThreadsHandler {
   }
 
   async deleteThreadCommentByThreadAndCommentIdHandler(request, h){
-    const { commentId,threadId } = request.params;
+    const { comment_id,thread_id } = request.params;
     const owner = request.auth.credentials.id;
     const payload = {
-      commentId,
-      threadId,
+      comment_id,
+      thread_id,
       owner
     }
 
@@ -68,9 +68,9 @@ class ThreadsHandler {
   }
 
   async getThreadByIdHandler(request,h){
-    const {threadId}  = request.params;
+    const {thread_id}  = request.params;
     const getThreadUseCase = this._container.getInstance(GetThreadUseCase.name);
-    const thread = await getThreadUseCase.execute(threadId);
+    const thread = await getThreadUseCase.execute(thread_id);
 
     const response = h.response({
       status: 'success',

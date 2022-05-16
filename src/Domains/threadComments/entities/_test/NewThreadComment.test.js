@@ -14,7 +14,7 @@ describe('a NewThreadComment entities',()=>{
         // Arrange
         const payload = {
           content: 123,
-          threadId: true,
+          thread_id: true,
           owner: []
         };
     
@@ -25,16 +25,16 @@ describe('a NewThreadComment entities',()=>{
         // Arrange
         const payload = {
             content: "content dari sebuah thread",
-            threadId: "thread-DWrT3pXe1hccYkV1eIAxSd",
+            thread_id: "thread-DWrT3pXe1hccYkV1eIAxSd",
             owner: "user-DWrT3pXe1hccYkV1eIAxS"
         };
     
         // Action
-        const { content, threadId, owner } = new NewThreadComment(payload);
+        const { content, thread_id, owner } = new NewThreadComment(payload);
     
         // Assert
         expect(content).toEqual(payload.content);
-        expect(threadId).toEqual(payload.threadId);
+        expect(thread_id).toEqual(payload.thread_id);
         expect(owner).toEqual(payload.owner);
     });
 }); 

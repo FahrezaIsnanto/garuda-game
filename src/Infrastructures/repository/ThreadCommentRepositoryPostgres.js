@@ -11,14 +11,13 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
   }
 
   async addThreadComment(newThreadComment) {
-    const { content, threadId, owner } = newThreadComment;
+    const { content, thread_id, owner } = newThreadComment;
     const id = `comment-${this._idGenerator()}`;
-    const date = new Date().toISOString();
     const is_delete = "0";
 
     const query = {
-      text: 'INSERT INTO thread_comments VALUES($1, $2, $3, $4, $5, $6) RETURNING id, content, owner',
-      values: [id, content, threadId,is_delete,date, owner],
+      text: 'INSERT INTO thread_comments VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
+      values: [id, content, thread_id,is_delete,owner],
     };
 
     const result = await this._pool.query(query);
@@ -26,10 +25,10 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
     return new AddedThreadComment({ ...result.rows[0] });
   }
 
-  async verifyThreadExist({threadId}) {
+  async verifyThreadExist({thread_id}) {
     const query = {
-      text: 'SELECT * FROM threads where "id" = $1',
-      values: [threadId],
+      text: 'SELECT * FROM threads where id = $1',
+      values: [thread_id],
     };
 
     const result = await this._pool.query(query);
@@ -40,10 +39,10 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
 
   }
 
-  async verifyThreadCommentOwner({commentId,threadId,owner}) {
+  async verifyThreadCommentOwner({comment_id,thread_id,owner}) {
     const query = {
-      text: 'SELECT * FROM thread_comments where "id" = $1 AND "threadId" = $2',
-      values: [commentId,threadId],
+      text: 'SELECT * FROM thread_comments where id = $1 AND thread_id = $2',
+      values: [comment_id,thread_id],
     };
 
     const result = await this._pool.query(query);
@@ -57,11 +56,11 @@ class ThreadCommentRepositoryPostgres extends ThreadCommentRepository {
     }
   }
 
-  async deleteThreadCommentByCommentAndThreadId({commentId,threadId}){
+  async deleteThreadCommentByCommentAndThreadId({comment_id,thread_id}){
     const is_delete = "1";
     const query = {
-      text: 'UPDATE thread_comments set "is_delete" = $1 where "id" = $2 AND "threadId" = $3 RETURNING id',
-      values: [is_delete,commentId,threadId]
+      text: 'UPDATE thread_comments set is_delete = $1 where id = $2 AND thread_id = $3 RETURNING id',
+      values: [is_delete,comment_id,thread_id]
     }
     const result = await this._pool.query(query);
     if (!result.rows.length) {
