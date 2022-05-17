@@ -7,7 +7,7 @@ class GetThreadUseCase {
     const result = await this._threadRepository.getThread(thread_id);
 
     var comments = [];
-    result.rows.map((comment)=>{
+    result.map((comment)=>{
       comments.push({
         id:comment.comment_id,
         username: comment.comment_username,
@@ -16,11 +16,11 @@ class GetThreadUseCase {
       });
     });
     const thread = {
-      id: result.rows[0].thread_id,
-      title:result.rows[0].title,
-      body:result.rows[0].body,
-      date: new Date(result.rows[0].thread_date).toISOString(),
-      username: result.rows[0].thread_username,
+      id: result[0].thread_id,
+      title:result[0].title,
+      body:result[0].body,
+      date: new Date(result[0].thread_date).toISOString(),
+      username: result[0].thread_username,
       comments
     }
     return thread;

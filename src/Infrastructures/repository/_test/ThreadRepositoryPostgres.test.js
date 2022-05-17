@@ -97,9 +97,9 @@ describe('ThreadRepositoryPostgres', () => {
       // Action 
       const result = await threadRepositoryPostgres.getThread(thread_id);
 
-      expect(result.rows[0].thread_id).toEqual(thread_id);
-      expect(result.rows[0].comment_id).toEqual(comment_id1);
-      expect(result.rows[1].comment_id).toEqual(comment_id2);
+      expect(result[0].thread_id).toEqual(thread_id);
+      expect(result[0].comment_id).toEqual(comment_id1);
+      expect(result[1].comment_id).toEqual(comment_id2);
 
     });
   });
